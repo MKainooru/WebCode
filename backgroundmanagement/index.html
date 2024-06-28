@@ -1,0 +1,2084 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no"
+    />
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/Element-ui.css" />
+    <link rel="stylesheet" type="text/css" href="./css/index.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <script src="./js/vue.js" type="text/javascript" charset="utf-8"></script>
+    <script src="./js/element-ui.js"></script>
+    <script src="./js/axios.js"></script>
+    <script src="./js/echarts.min.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <style>
+      /* 页眉 */
+      .el-header {
+        background-color: #f3f4f5;
+        line-height: 60px;
+      }
+      /* 主体 */
+      html,
+      body,
+      #app {
+        height: 100%;
+        width: 100%;
+        background-color: #f3f4f5;
+      }
+      .el-main {
+        line-height: 100%;
+        padding: 0px;
+      }
+
+      /* 输入框单位样式 */
+      .el-input-number[data-unit] {
+        --el-input-number-unit-offset-x: 55px;
+        position: relative;
+      }
+      .el-input-number[data-unit]::after {
+        content: attr(data-unit);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        top: 0;
+        right: var(--el-input-number-unit-offset-x);
+        color: #999999;
+      }
+      .el-input-number[data-unit] .el-input__inner {
+        padding-left: 30px;
+        padding-right: calc(var(--el-input-number-unit-offset-x) + 12px);
+      }
+
+      .el-row {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      .el-col {
+        border-radius: 4px;
+      }
+      .bg-purple {
+        height: 180px;
+        background: #ffffff;
+      }
+      .grid-content {
+        border-radius: 4px;
+        min-height: 36px;
+      }
+      .rowDiv1 {
+        font-size: 22px;
+        color: #5a5c5c;
+        text-align: center;
+        padding-top: 10px;
+      }
+      .rowDiv2 {
+        font-size: 40px;
+        color: #5a5c5c;
+        text-align: center;
+        line-height: 80px;
+      }
+
+      .el-carousel__item img {
+        height: 100%;
+      }
+      .el-col-3 {
+        width: 25%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <el-container>
+        <el-header>
+          <div class="fixed-tabs">
+            <!-- 标签切换页 -->
+            <el-tabs v-model="activeName">
+              <el-tab-pane label="主控台" name="first">
+                <el-main>
+                  <div style="text-align: center; float: left; width: 40%">
+                    <el-carousel indicator-position="outside">
+                      <el-carousel-item
+                        v-for="(item, index) in images"
+                        :key="index"
+                      >
+                        <img :src="item" alt="carousel image" />
+                      </el-carousel-item>
+                    </el-carousel>
+                  </div>
+                  <div style="float: right; width: 55%">
+                    <el-row :gutter="20">
+                      <el-col :span="3"
+                        ><div class="grid-content bg-purple">
+                          <div class="rowDiv1">支付订单</div>
+                          <el-divider></el-divider>
+                          <div class="rowDiv2">60</div>
+                        </div></el-col
+                      >
+                      <el-col :span="3"
+                        ><div class="grid-content bg-purple">
+                          <div class="rowDiv1">订单量</div>
+                          <el-divider></el-divider>
+                          <div class="rowDiv2">555</div>
+                        </div></el-col
+                      >
+                      <el-col :span="3"
+                        ><div class="grid-content bg-purple">
+                          <div class="rowDiv1">销售额</div>
+                          <el-divider></el-divider>
+                          <div class="rowDiv2">6000</div>
+                        </div></el-col
+                      >
+                      <el-col :span="3"
+                        ><div class="grid-content bg-purple">
+                          <div class="rowDiv1">新增用户</div>
+                          <el-divider></el-divider>
+                          <div class="rowDiv2">34</div>
+                        </div></el-col
+                      >
+                    </el-row>
+                  </div>
+                  <div
+                    id="bar2"
+                    style="
+                      width: 800px;
+                      height: 600px;
+                      float: right;
+                      margin-right: 20px;
+                    "
+                  ></div>
+                  <div
+                    id="bar1"
+                    style="
+                      width: 490px;
+                      height: 350px;
+                      float: left;
+                      margin: 70px;
+                    "
+                  ></div>
+                </el-main>
+              </el-tab-pane>
+              <el-tab-pane label="商品管理" name="second">
+                <el-main>
+                  <div style="margin-bottom: 20px">
+                    <!-- 商品名称搜索框 -->
+                    <el-input
+                      placeholder="商品名称"
+                      prefix-icon="el-icon-search"
+                      v-model="searchQuery"
+                      @keydown.enter.native="handleSearch()"
+                      style="width: 16%; float: left"
+                    >
+                    </el-input>
+
+                    <!-- 商品分类选择框 -->
+                    <el-select
+                      v-model="selectedCategories"
+                      multiple
+                      placeholder="商品分类"
+                      style="float: left; width: 500px; margin-left: 10px"
+                    >
+                      <el-option
+                        v-for="item in classifyoptions"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                        :disabled="item.disabled"
+                      >
+                      </el-option>
+                    </el-select>
+
+                    <el-button
+                      type="primary"
+                      @click="handleSearch"
+                      style="float: left; margin-left: 10px"
+                      >搜索</el-button
+                    >
+                    <el-button
+                      @click="handleReset"
+                      style="float: left; margin-left: 10px"
+                      >重置</el-button
+                    >
+                  </div>
+
+                  <div style="margin-top: 50px">
+                    <el-button
+                      type="primary"
+                      @click="addition = true"
+                      style="float: left"
+                      >新增</el-button
+                    >
+                    <el-button
+                      type="danger"
+                      @click="handleBatchDelete"
+                      style="float: left"
+                      >批量删除</el-button
+                    >
+                    <el-button @click="handleBatchShelfUp" style="float: left"
+                      >上架</el-button
+                    >
+                    <el-button @click="handleBatchShelfDown" style="float: left"
+                      >下架</el-button
+                    >
+                    <el-button
+                      @click="handleCancelSelection"
+                      style="float: left"
+                      >取消选择</el-button
+                    >
+                    <el-button
+                      type="primary"
+                      @click="updatePaginatedData"
+                      style="float: right"
+                      >刷新</el-button
+                    >
+                  </div>
+
+                  <div style="margin-top: 6%; overflow-y: auto; height: 700px">
+                    <!-- 主体列表 -->
+                    <el-table
+                      ref="multipleTableShop"
+                      :data="paginatedData"
+                      tooltip-effect="dark"
+                      style="width: 100%"
+                      @selection-change="handleSelectionChangeShop"
+                      height="98%"
+                    >
+                      <el-table-column
+                        type="selection"
+                        width="60px"
+                        align="center"
+                      >
+                      </el-table-column>
+                      <el-table-column
+                        prop="commodityname"
+                        label="商品"
+                        width="300px"
+                        align="center"
+                      >
+                        <template slot-scope="scope">
+                          <div style="width: 110px; float: left; height: 110px">
+                            <el-image
+                              :src="scope.row.dialogImageUrl"
+                              :fit="contain"
+                            ></el-image>
+                          </div>
+                          <div style="width: 60%; float: right">
+                            <p style="font-size: 16px">
+                              {{ scope.row.commodityname }}
+                            </p>
+                            <p style="color: rgb(252, 1, 1); display: inline">
+                              ￥{{ scope.row.salesprice }}
+                            </p>
+                            <span style="color: #c3c9c9">|</span>
+                            <p style="color: #828888; display: inline">
+                              ￥{{ scope.row.originalprice }}
+                            </p>
+                            <p style="font-size: 13px">
+                              分类: {{
+                              getCategoryLabel(scope.row.classifyoptions) }}
+                            </p>
+                            <p style="font-size: 13px">
+                              创建时间: {{ scope.row.creationTime }}
+                            </p>
+                          </div>
+                        </template>
+                      </el-table-column>
+                      <el-table-column
+                        prop="sales"
+                        label="实际销量"
+                        align="center"
+                      >
+                      </el-table-column>
+                      <el-table-column
+                        prop="commoditystatus"
+                        label="商品状态"
+                        align="center"
+                      >
+                        <template slot-scope="scope">
+                          <el-tag
+                            :type="scope.row.commoditystatus === '上架' ? 'primary' : 'success'"
+                            disable-transitions
+                            >{{scope.row.commoditystatus}}</el-tag
+                          >
+                        </template>
+                      </el-table-column>
+                      <el-table-column
+                        prop="reviewstatus"
+                        label="审核状态"
+                        align="center"
+                      >
+                        <template slot-scope="scope">
+                          <div v-if="scope.row.isNew">
+                            <el-button
+                              type="success"
+                              plain
+                              @click="reviewItem(scope.row, '通过')"
+                              >通过</el-button
+                            >
+                            <el-button
+                              type="danger"
+                              plain
+                              @click="reviewItem(scope.row, '拒绝')"
+                              >拒绝</el-button
+                            >
+                          </div>
+                          <div v-else>
+                            <el-tag
+                              :type="scope.row.reviewstatus === '通过' ? 'success' : 'danger'"
+                              disable-transitions
+                              >{{scope.row.reviewstatus}}</el-tag
+                            >
+                          </div>
+                        </template>
+                      </el-table-column>
+                      <el-table-column
+                        prop="totalinventory"
+                        label="总库存"
+                        align="center"
+                      >
+                      </el-table-column>
+                      <el-table-column
+                        label="操作"
+                        width="500px"
+                        align="center"
+                      >
+                        <template slot-scope="scope">
+                          <el-button
+                            type="text"
+                            size="medium"
+                            @click="editRow(scope.$index, scope.row)"
+                            >修改</el-button
+                          >
+                          <el-button
+                            type="text"
+                            size="medium"
+                            @click="openCommoditySpecifications(scope.row)"
+                            >商品规格</el-button
+                          >
+                          <!-- <el-button type="text" size="medium"
+                            >设置轮播图</el-button
+                          >
+                          <el-button type="text" size="medium"
+                            >商品详情</el-button
+                          > -->
+                          <el-popconfirm
+                            placement="top"
+                            width="160px"
+                            title="是否要删除该商品？"
+                            @confirm="deleteRow(scope.$index,tableData)"
+                          >
+                            <el-button
+                              type="text"
+                              size="medium"
+                              slot="reference"
+                              >删除</el-button
+                            >
+                          </el-popconfirm>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </div>
+                  <!-- 新增数据的抽屉界面 -->
+                  <el-drawer
+                    title="新增"
+                    :visible.sync="addition"
+                    direction="rtl"
+                    size="40%"
+                  >
+                    <div style="margin-right: 20px">
+                      <el-form ref="form" :model="addform" label-width="90px">
+                        <!-- 商品名称输入框 -->
+                        <el-form-item label="商品名称:">
+                          <el-input
+                            v-model="addform.commodityname"
+                            placeholder="请输入商品名称,不能超过60个字符。"
+                          ></el-input>
+                        </el-form-item>
+                        <!-- 上传图片 -->
+                        <el-form-item label="上传:">
+                          <el-upload
+                            list-type="picture-card"
+                            :on-change="handleAvatarChange"
+                            :on-remove="handleRemove"
+                            :file-list="fileList"
+                            multiple
+                          >
+                            <i class="el-icon-plus"></i>
+                          </el-upload>
+                        </el-form-item>
+                        <!-- 商品分类下拉框 -->
+                        <el-form-item label="商品分类:">
+                          <el-select
+                            v-model="addform.classifyoptions"
+                            placeholder="选择所属商品分类"
+                          >
+                            <el-option
+                              v-for="item in classifyoptions"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value"
+                              :disabled="item.disabled"
+                            >
+                            </el-option>
+                          </el-select>
+                        </el-form-item>
+                        <!-- 商品描述 -->
+                        <el-form-item label="商品描述:">
+                          <el-input
+                            type="textarea"
+                            v-model="addform.commoditydesc"
+                          ></el-input>
+                        </el-form-item>
+                        <!-- 总库存 -->
+                        <el-form-item label="总库存:">
+                          <el-input-number
+                            v-model="addform.totalinventory"
+                            controls-position="right"
+                            :min="0"
+                            @change="handleChange"
+                            data-unit="件"
+                            class="el-input-number"
+                          ></el-input-number>
+                        </el-form-item>
+                        <!-- 库存预警 -->
+                        <el-form-item label="库存预警:">
+                          <el-input-number
+                            v-model="addform.warning"
+                            controls-position="right"
+                            :min="0"
+                            @change="handleChange"
+                            data-unit="件"
+                            class="el-input-number"
+                          ></el-input-number>
+                        </el-form-item>
+                        <!-- 最低销售价 -->
+                        <el-form-item label="最低销售价:">
+                          <el-input-number
+                            v-model="addform.salesprice"
+                            controls-position="right"
+                            :min="0"
+                            @change="handleChange"
+                            data-unit="元"
+                            class="el-input-number"
+                          ></el-input-number>
+                        </el-form-item>
+                        <!-- 最低原价 -->
+                        <el-form-item label="最低原价:">
+                          <el-input-number
+                            v-model="addform.originalprice"
+                            controls-position="right"
+                            :min="0"
+                            @change="handleChange"
+                            data-unit="元"
+                            class="el-input-number"
+                          ></el-input-number>
+                        </el-form-item>
+                        <!-- 库存显示 -->
+                        <el-form-item label="库存显示:">
+                          <el-radio v-model="addform.display" label="1">
+                            隐藏
+                          </el-radio>
+                          <el-radio v-model="addform.display" label="2">
+                            显示
+                          </el-radio>
+                        </el-form-item>
+                        <!-- 是否上架 -->
+                        <el-form-item label="是否上架:">
+                          <el-radio
+                            v-model="addform.commoditystatus"
+                            label="仓库"
+                          >
+                            放入仓库
+                          </el-radio>
+                          <el-radio
+                            v-model="addform.commoditystatus"
+                            label="上架"
+                          >
+                            立即上架
+                          </el-radio>
+                        </el-form-item>
+                        <!-- 提交 -->
+                        <el-button
+                          type="primary"
+                          @click="handleAdd"
+                          style="margin-left: 20px"
+                          >提交</el-button
+                        >
+                        <!-- 取消 -->
+                        <el-button @click="addition = false">取消</el-button>
+                      </el-form>
+                    </div>
+                  </el-drawer>
+                  <!-- 修改数据的抽屉界面 -->
+                  <el-drawer
+                    title="修改"
+                    :visible.sync="editition"
+                    direction="rtl"
+                    size="40%"
+                  >
+                    <div style="margin-right: 20px">
+                      <el-form ref="form" :model="editform" label-width="90px">
+                        <!-- 商品名称输入框 -->
+                        <el-form-item label="商品名称:">
+                          <el-input v-model="editform.commodityname"></el-input>
+                        </el-form-item>
+                        <!-- 上传图片 -->
+                        <!-- <el-form-item label="上传:">
+                          <el-upload
+                            list-type="picture-card"
+                            :limit="1"
+                            :on-success="handleAvatarSuccess"
+                          >
+                            <i class="el-icon-plus"></i>
+                          </el-upload>
+                          <el-dialog :visible.sync="dialogVisible">
+                            <img width="100%" :src="dialogImageUrl" alt="" />
+                          </el-dialog>
+                        </el-form-item> -->
+                        <!-- 商品分类下拉框 -->
+                        <el-form-item label="商品分类:">
+                          <el-select
+                            v-model="editform.classifyoptions"
+                            placeholder="选择所属商品分类"
+                          >
+                            <el-option
+                              v-for="item in classifyoptions"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value"
+                              :disabled="item.disabled"
+                            >
+                            </el-option>
+                          </el-select>
+                        </el-form-item>
+                        <!-- 商品描述 -->
+                        <el-form-item label="商品描述:">
+                          <el-input
+                            type="textarea"
+                            v-model="editform.commoditydesc"
+                          ></el-input>
+                        </el-form-item>
+                        <!-- 总库存 -->
+                        <el-form-item label="总库存:">
+                          <el-input-number
+                            v-model="editform.totalinventory"
+                            controls-position="right"
+                            :min="0"
+                            @change="handleChange"
+                            data-unit="件"
+                            class="el-input-number"
+                          ></el-input-number>
+                        </el-form-item>
+                        <!-- 库存预警 -->
+                        <el-form-item label="库存预警:">
+                          <el-input-number
+                            v-model="editform.warning"
+                            controls-position="right"
+                            :min="0"
+                            @change="handleChange"
+                            data-unit="件"
+                            class="el-input-number"
+                          ></el-input-number>
+                        </el-form-item>
+                        <!-- 最低销售价 -->
+                        <el-form-item label="最低销售价:">
+                          <el-input-number
+                            v-model="editform.salesprice"
+                            controls-position="right"
+                            :min="0"
+                            @change="handleChange"
+                            data-unit="元"
+                            class="el-input-number"
+                          ></el-input-number>
+                        </el-form-item>
+                        <!-- 最低原价 -->
+                        <el-form-item label="最低原价:">
+                          <el-input-number
+                            v-model="editform.originalprice"
+                            controls-position="right"
+                            :min="0"
+                            @change="handleChange"
+                            data-unit="元"
+                            class="el-input-number"
+                          ></el-input-number>
+                        </el-form-item>
+                        <!-- 库存显示 -->
+                        <el-form-item label="库存显示:">
+                          <el-radio v-model="editform.display" label="1">
+                            隐藏
+                          </el-radio>
+                          <el-radio v-model="editform.display" label="2">
+                            显示
+                          </el-radio>
+                        </el-form-item>
+                        <!-- 是否上架 -->
+                        <el-form-item label="是否上架:">
+                          <el-radio
+                            v-model="editform.commoditystatus"
+                            label="仓库"
+                          >
+                            放入仓库
+                          </el-radio>
+                          <el-radio
+                            v-model="editform.commoditystatus"
+                            label="上架"
+                          >
+                            立即上架
+                          </el-radio>
+                        </el-form-item>
+                        <!-- 确认 -->
+                        <el-button
+                          type="primary"
+                          @click="handleEdit"
+                          style="margin-left: 20px"
+                          >提交</el-button
+                        >
+                        <!-- 取消 -->
+                        <el-button @click="editition = false">取消</el-button>
+                      </el-form>
+                    </div>
+                  </el-drawer>
+
+                  <!-- 商品规格抽屉界面 -->
+                  <el-drawer
+                    title="商品规格"
+                    :visible.sync="commoditySpecifications"
+                    direction="rtl"
+                    size="40%"
+                  >
+                    <div style="margin-right: 20px">
+                      <el-form
+                        ref="form"
+                        :model="commoditySpecificationsForm"
+                        label-width="90px"
+                      >
+                        <!-- 报告语言 -->
+                        <el-form-item label="报告语言:">
+                          <el-select
+                            v-model="commoditySpecificationsForm.reportLanguage"
+                            placeholder="请选择"
+                          >
+                            <el-option
+                              v-for="item in reportLanguageOptions"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value"
+                            >
+                            </el-option>
+                          </el-select>
+                        </el-form-item>
+                        <!-- 报告形式 -->
+                        <el-form-item label="报告形式:">
+                          <el-select
+                            v-model="commoditySpecificationsForm.reportForm"
+                            placeholder="请选择"
+                          >
+                            <el-option
+                              v-for="item in reportFormOptions"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value"
+                            >
+                            </el-option>
+                          </el-select>
+                        </el-form-item>
+                        <!-- 实验室 -->
+                        <el-form-item label="实验室:">
+                          <el-select
+                            v-model="commoditySpecificationsForm.laboratory"
+                            placeholder="请选择"
+                          >
+                            <el-option
+                              v-for="item in laboratoryOptions"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value"
+                            >
+                            </el-option>
+                          </el-select>
+                        </el-form-item>
+                        <!-- 检测项目 -->
+                        <el-form-item label="检测项目:">
+                          <!-- 项目组1 -->
+                          <div
+                            style="
+                              border: 1px solid rgb(225, 218, 243);
+                              padding-left: 8px;
+                              border-radius: 8px;
+                            "
+                          >
+                            <el-checkbox
+                              :indeterminate="isIndeterminate1"
+                              v-model="checkAll1"
+                              @change="handleCheckAllChange1"
+                            >
+                              纤维成分
+                            </el-checkbox>
+                            <el-checkbox-group
+                              v-model="checkedItems1"
+                              @change="handleCheckedItemsChange1"
+                            >
+                              <el-checkbox
+                                v-for="item in itemOptions1"
+                                :label="item.name"
+                                :key="item.name"
+                                :disabled="item.disabled"
+                                >{{item.name}}</el-checkbox
+                              >
+                            </el-checkbox-group>
+                          </div>
+                          <!-- 项目组2 -->
+                          <div
+                            style="
+                              border: 1px solid rgb(225, 218, 243);
+                              padding-left: 8px;
+                              margin-top: 5px;
+                              border-radius: 8px;
+                            "
+                          >
+                            <el-checkbox
+                              :indeterminate="isIndeterminate2"
+                              v-model="checkAll2"
+                              @change="handleCheckAllChange2"
+                            >
+                              色牢度
+                            </el-checkbox>
+                            <el-checkbox-group
+                              v-model="checkedItems2"
+                              @change="handleCheckedItemsChange2"
+                            >
+                              <el-checkbox
+                                v-for="item in itemOptions2"
+                                :label="item.name"
+                                :key="item.name"
+                                >{{item.name}}</el-checkbox
+                              >
+                            </el-checkbox-group>
+                          </div>
+                          <!-- 项目组3 -->
+                          <div
+                            style="
+                              border: 1px solid rgb(225, 218, 243);
+                              padding-left: 8px;
+                              margin-top: 5px;
+                              border-radius: 8px;
+                            "
+                          >
+                            <el-checkbox
+                              :indeterminate="isIndeterminate3"
+                              v-model="checkAll3"
+                              @change="handleCheckAllChange3"
+                            >
+                              外观稳定性
+                            </el-checkbox>
+                            <el-checkbox-group
+                              v-model="checkedItems3"
+                              @change="handleCheckedItemsChange3"
+                            >
+                              <el-checkbox
+                                v-for="item in itemOptions3"
+                                :label="item.name"
+                                :key="item.name"
+                                >{{item.name}}</el-checkbox
+                              >
+                            </el-checkbox-group>
+                          </div>
+                          <!-- 项目组4 -->
+                          <div
+                            style="
+                              border: 1px solid rgb(225, 218, 243);
+                              padding-left: 8px;
+                              margin-top: 5px;
+                              border-radius: 8px;
+                            "
+                          >
+                            <el-checkbox
+                              :indeterminate="isIndeterminate4"
+                              v-model="checkAll4"
+                              @change="handleCheckAllChange4"
+                            >
+                              物理性能
+                            </el-checkbox>
+                            <el-checkbox-group
+                              v-model="checkedItems4"
+                              @change="handleCheckedItemsChange4"
+                            >
+                              <el-checkbox
+                                v-for="item in itemOptions4"
+                                :label="item.name"
+                                :key="item.name"
+                                >{{item.name}}</el-checkbox
+                              >
+                            </el-checkbox-group>
+                          </div>
+                        </el-form-item>
+                        <!-- 提交 -->
+                        <el-button
+                          type="primary"
+                          @click="submitCommoditySpecifications"
+                          style="margin-left: 20px"
+                          >提交</el-button
+                        >
+                        <!-- 取消 -->
+                        <el-button @click="commoditySpecifications = false"
+                          >取消</el-button
+                        >
+                      </el-form>
+                    </div>
+                  </el-drawer>
+
+                  <div style="text-align: center">
+                    <el-pagination
+                      @size-change="handleSizeChange"
+                      @current-change="handleCurrentChange"
+                      :current-page="currentPage"
+                      :page-sizes="[5, 10, 20, 40]"
+                      :page-size="pageSize"
+                      layout="total, sizes, prev, pager, next, jumper"
+                      :total="total"
+                    >
+                    </el-pagination>
+                  </div>
+                </el-main>
+              </el-tab-pane>
+              <el-tab-pane label="规格管理" name="third">
+                <el-main>
+                  <div style="padding-bottom: 50px">
+                    <el-button
+                      type="primary"
+                      style="float: left"
+                      @click="openAddDrawer2"
+                      >新增</el-button
+                    >
+                    <el-button
+                      type="danger"
+                      style="float: left"
+                      @click="batchDelete2"
+                      >批量删除</el-button
+                    >
+                  </div>
+                  <div style="overflow-y: auto; height: 760px">
+                    <el-table
+                      ref="multipleTable"
+                      :data="currentTableData"
+                      tooltip-effect="dark"
+                      style="width: 100%"
+                      @selection-change="handleSelectionChangeSpecifications"
+                      height="98%"
+                    >
+                      <el-table-column
+                        type="selection"
+                        width="60px"
+                        align="center"
+                      >
+                      </el-table-column>
+                      <el-table-column
+                        prop="name"
+                        label="规格名称"
+                        align="center"
+                      >
+                      </el-table-column>
+                      <el-table-column
+                        prop="parent"
+                        label="规格组名称"
+                        align="center"
+                        :filters="[{ text: '纤维成分', value: '纤维成分' }, { text: '色牢度', value: '色牢度' },{ text: '外观稳定性', value: '外观稳定性' },{ text: '物理性能', value: '物理性能' }]"
+                        :filter-method="filterTag"
+                        filter-placement="bottom-end"
+                      >
+                        <template slot-scope="scope">
+                          <el-tag
+                            :type="scope.row.parent === '纤维成分' ? 'primary' : scope.row.parent === '色牢度' ?'success' : scope.row.parent === '外观稳定性' ? 'info' :'warning'"
+                            disable-transitions
+                            >{{scope.row.parent}}</el-tag
+                          >
+                        </template>
+                      </el-table-column>
+                      <el-table-column
+                        prop="status"
+                        label="状态"
+                        align="center"
+                      >
+                        <template slot-scope="scope">
+                          <el-switch
+                            v-model="scope.row.disabled"
+                            active-color="#ff4949"
+                            inactive-color="#13ce66"
+                            @change="handleSwitchChange2(scope.$index, scope.row.disabled)"
+                          >
+                          </el-switch>
+                        </template>
+                      </el-table-column>
+                      <el-table-column
+                        prop="action"
+                        label="操作"
+                        align="center"
+                      >
+                        <template slot-scope="scope">
+                          <el-button
+                            type="text"
+                            size="medium"
+                            @click="openEditDrawer2(scope.$index, scope.row)"
+                            >修改
+                          </el-button>
+                          <el-button
+                            type="text"
+                            size="medium"
+                            @click="deleteSpecification(scope.$index)"
+                            >删除
+                          </el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </div>
+                  <!-- 新增和修改抽屉 -->
+                  <el-drawer
+                    :title="drawerTitle"
+                    :visible.sync="drawerVisible"
+                    direction="rtl"
+                    size="40%"
+                  >
+                    <div style="margin-right: 20px">
+                      <el-form
+                        ref="form"
+                        :model="specificationForm"
+                        label-width="90px"
+                      >
+                        <el-form-item label="规格名称:" prop="name">
+                          <el-input v-model="specificationForm.name"></el-input>
+                        </el-form-item>
+                        <el-form-item label="规格组名称:" prop="parent">
+                          <el-input
+                            v-model="specificationForm.parent"
+                          ></el-input>
+                        </el-form-item>
+                        <el-form-item label="是否启用:">
+                          <el-switch
+                            v-model="specificationForm.disabled"
+                            active-color="#ff4949"
+                            inactive-color="#13ce66"
+                          >
+                          </el-switch>
+                        </el-form-item>
+                      </el-form>
+                    </div>
+                    <div style="margin: 20px">
+                      <el-button type="primary" @click="submitSpecification"
+                        >提交</el-button
+                      >
+                      <el-button @click="drawerVisible = false">取消</el-button>
+                    </div>
+                  </el-drawer>
+                  <div style="text-align: center">
+                    <el-pagination
+                      @size-change="handleSizeChange"
+                      @current-change="handleCurrentChange"
+                      :current-page="currentPage"
+                      :page-sizes="[5, 10, 20, 40]"
+                      :page-size="pageSize"
+                      layout="total, sizes, prev, pager, next, jumper"
+                      :total="total1"
+                    >
+                    </el-pagination>
+                  </div>
+                </el-main>
+              </el-tab-pane>
+              <el-tab-pane label="分类管理" name="fourth">
+                <el-main>
+                  <div style="padding-bottom: 50px">
+                    <el-button
+                      type="primary"
+                      style="float: left"
+                      @click="openAddDrawer"
+                      >新增</el-button
+                    >
+                    <el-button
+                      type="danger"
+                      style="float: left"
+                      @click="batchDelete"
+                      >批量删除</el-button
+                    >
+                  </div>
+                  <div style="overflow-y: auto; height: 760px">
+                    <el-table
+                      ref="multipleTable"
+                      :data="currentTableData2"
+                      tooltip-effect="dark"
+                      style="width: 100%"
+                      @selection-change="handleSelectionChangeClassification"
+                      height="98%"
+                    >
+                      <el-table-column
+                        type="selection"
+                        width="60px"
+                        align="center"
+                      >
+                      </el-table-column>
+                      <el-table-column
+                        prop="label"
+                        label="分类名称"
+                        align="center"
+                      >
+                      </el-table-column>
+                      <el-table-column
+                        prop="value"
+                        label="分类值"
+                        align="center"
+                      >
+                      </el-table-column>
+                      <el-table-column prop="" label="状态" align="center">
+                        <template slot-scope="scope">
+                          <el-switch
+                            v-model="scope.row.disabled"
+                            active-color="#ff4949"
+                            inactive-color="#13ce66"
+                            @change="handleSwitchChange(scope.$index, scope.row.disabled)"
+                          >
+                          </el-switch>
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="" label="操作" align="center">
+                        <template slot-scope="scope">
+                          <el-button
+                            type="text"
+                            size="medium"
+                            @click="openEditDrawer(scope.$index, scope.row)"
+                            >修改
+                          </el-button>
+                          <el-button
+                            type="text"
+                            size="medium"
+                            @click="deleteClassification(scope.$index)"
+                            >删除
+                          </el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </div>
+                  <!-- 新增分类抽屉界面 -->
+                  <el-drawer
+                    title="新增"
+                    :visible.sync="addClassification"
+                    direction="rtl"
+                    size="40%"
+                  >
+                    <div style="margin-right: 20px">
+                      <el-form
+                        ref="form"
+                        :model="classificationForm"
+                        label-width="90px"
+                      >
+                        <el-form-item label="分类名称:" prop="label">
+                          <el-input
+                            v-model="classificationForm.label"
+                          ></el-input>
+                        </el-form-item>
+                        <el-form-item label="分类值:" prop="value">
+                          <el-input
+                            v-model="classificationForm.value"
+                          ></el-input>
+                        </el-form-item>
+                        <el-form-item label="是否启用:">
+                          <el-switch
+                            v-model="classificationForm.disabled"
+                            active-color="#ff4949"
+                            inactive-color="#13ce66"
+                          >
+                          </el-switch>
+                        </el-form-item>
+                      </el-form>
+                    </div>
+                    <div style="margin: 20px">
+                      <el-button type="primary" @click="classificationAddOrEdit"
+                        >提交</el-button
+                      >
+                      <el-button @click="addClassification = false"
+                        >取消</el-button
+                      >
+                    </div>
+                  </el-drawer>
+                  <div style="text-align: center">
+                    <el-pagination
+                      @size-change="handleSizeChange"
+                      @current-change="handleCurrentChange"
+                      :current-page="currentPage"
+                      :page-sizes="[5, 10, 20, 40]"
+                      :page-size="pageSize"
+                      layout="total, sizes, prev, pager, next, jumper"
+                      :total="total2"
+                    >
+                    </el-pagination>
+                  </div>
+                </el-main>
+              </el-tab-pane>
+            </el-tabs>
+          </div>
+        </el-header>
+      </el-container>
+    </div>
+  </body>
+
+  <script type="text/javascript">
+    new Vue({
+      el: "#app",
+      data() {
+        return {
+          // 首加载的页面
+          activeName: "first",
+          // 搜索框初始化
+          searchQuery: "",
+          // 主体列表数据
+          tableData: [
+            {
+              commodityname: "外科医用口罩检测",
+              sales: 23,
+              commoditystatus: "上架",
+              reviewstatus: "通过",
+              totalinventory: 60,
+              salesprice: 4,
+              originalprice: 5,
+              classifyoptions: "纯棉纺织品",
+              creationTime: "2024-01-01",
+              dialogImageUrl:
+                "https://github.com/MKainooru/Images/raw/main/10002.jpg",
+            },
+            {
+              commodityname: "医用防护服质量检测",
+              sales: 67,
+              commoditystatus: "上架",
+              reviewstatus: "通过",
+              totalinventory: 45,
+              salesprice: 56,
+              originalprice: 71,
+              classifyoptions: "麻纺织品",
+              creationTime: "2023-02-05",
+              dialogImageUrl:
+                "https://github.com/MKainooru/Images/raw/main/10003.jpg",
+            },
+            {
+              commodityname: "外科医用口罩检测",
+              sales: 20,
+              commoditystatus: "仓库",
+              reviewstatus: "通过",
+              totalinventory: 46,
+              salesprice: 43,
+              originalprice: 56,
+              classifyoptions: "纯棉纺织品",
+              creationTime: "2024-02-06",
+              dialogImageUrl:
+                "https://github.com/MKainooru/Images/raw/main/100010.jpg",
+            },
+            {
+              commodityname: "医用防护服质量检测",
+              sales: 31,
+              commoditystatus: "仓库",
+              reviewstatus: "拒绝",
+              totalinventory: 40,
+              salesprice: 4,
+              originalprice: 5,
+              classifyoptions: "麻纺织品",
+              creationTime: "2024-05-01",
+              dialogImageUrl:
+                "https://github.com/MKainooru/Images/raw/main/10006.jpg",
+            },
+            {
+              commodityname: "棉纺织品质量检测",
+              sales: 23,
+              commoditystatus: "上架",
+              reviewstatus: "拒绝",
+              totalinventory: 60,
+              salesprice: 4,
+              originalprice: 5,
+              classifyoptions: "纯棉纺织品",
+              creationTime: "2023-01-01",
+              dialogImageUrl:
+                "https://github.com/MKainooru/Images/raw/main/10002.png",
+            },
+            {
+              commodityname: "KN95口罩质量检测",
+              sales: 67,
+              commoditystatus: "上架",
+              reviewstatus: "通过",
+              totalinventory: 45,
+              salesprice: 41,
+              originalprice: 54,
+              classifyoptions: "涤纶纺织品",
+              creationTime: "2024-06-01",
+              dialogImageUrl:
+                "https://github.com/MKainooru/Images/raw/main/10004.jpg",
+            },
+            {
+              commodityname: "羊毛纺织品质量检测",
+              sales: 24,
+              commoditystatus: "仓库",
+              reviewstatus: "通过",
+              totalinventory: 46,
+              salesprice: 34,
+              originalprice: 50,
+              classifyoptions: "羊毛纺织品",
+              creationTime: "2014-01-01",
+              dialogImageUrl:
+                "https://github.com/MKainooru/Images/raw/main/10001.jpg",
+            },
+          ],
+          currentPage: 1,
+          pageSize: 10,
+          filteredData: [], // 操作的数据集合
+          total: 0,
+          // 用于存储图表数据
+          chartData: [],
+
+          // 批量删除选项初始化
+          selectedItems: [],
+
+          // 新增抽屉界面初始化
+          addition: false,
+          fileList: [],
+          addform: {
+            commodityname: "",
+            commoditydesc: "",
+            totalinventory: 0,
+            warning: 0,
+            salesprice: 0,
+            originalprice: 0,
+            display: "2",
+            dialogImageUrl: "",
+            classifyoptions: [],
+          },
+          // 修改抽屉界面初始化
+          editition: false,
+          editform: {
+            commodityname: "",
+            commoditydesc: "",
+            totalinventory: 0,
+            warning: 0,
+            salesprice: 0,
+            originalprice: 0,
+            display: "2",
+            dialogImageUrl: "",
+            classifyoptions: [],
+          },
+          editIndex: -1,
+
+          // 抽屉界面中上传的初始化设置
+          dialogVisible: false,
+
+          // 商品分类下拉框数据
+          classifieddata: [],
+          selectedCategories: [], // 选中的分类
+          classifyoptions: [
+            {
+              value: "纯棉纺织品",
+              label: "纯棉纺织品",
+              disabled: false,
+            },
+            {
+              value: "麻纺织品",
+              label: "麻纺织品",
+              disabled: false,
+            },
+            {
+              value: "羊毛纺织品",
+              label: "羊毛纺织品",
+              disabled: false,
+            },
+            {
+              value: "丝织品",
+              label: "丝织品",
+              disabled: false,
+            },
+            {
+              value: "涤纶纺织品",
+              label: "涤纶纺织品",
+              disabled: false,
+            },
+          ],
+          // 商品规格界面
+          commoditySpecifications: false,
+          commoditySpecificationsForm: {
+            reportLanguage: "",
+            reportForm: "",
+            laboratory: "",
+          },
+          currentCommodity: null,
+          // 报告语言
+          reportLanguageOptions: [
+            {
+              value: "中文",
+              label: "中文报告",
+            },
+            {
+              value: "英文",
+              label: "英文报告",
+            },
+            {
+              value: "中英文",
+              label: "中文+英文报告",
+            },
+          ],
+          // 报告形式
+          reportFormOptions: [
+            {
+              value: "电子",
+              label: "电子报告",
+            },
+            {
+              value: "电子加纸质",
+              label: "电子报告+纸质报告",
+            },
+          ],
+          // 实验室
+          laboratoryOptions: [
+            {
+              value: "实验室",
+              label: "SGS江苏纺织品实验室",
+            },
+            {
+              value: "检测",
+              label: "SGS江苏纺织品检测中心",
+            },
+          ],
+          defaultProps: {
+            children: "children",
+            label: "label",
+          },
+          // 项目组1 纤维成分
+          itemOptions1: [
+            { name: "普通成分(1-3组)", parent: "纤维成分", disabled: false },
+            { name: "普通成分(4-5组)", parent: "纤维成分", disabled: false },
+            { name: "成分(单组)", parent: "纤维成分", disabled: false },
+            { name: "成分(棉麻混纺-2组)", parent: "纤维成分", disabled: false },
+            { name: "成分(羊绒单组)", parent: "纤维成分", disabled: false },
+            { name: "成分(羊绒混纺)", parent: "纤维成分", disabled: false },
+            {
+              name: "特殊成分(需显微镜法分析)",
+              parent: "纤维成分",
+              disabled: false,
+            },
+          ],
+          checkAll1: false, // 初始化全选
+          checkedItems1: [], // 初始化选中的项
+          isIndeterminate1: false,
+          // 项目组2 色牢度
+          itemOptions2: [
+            { name: "皂洗色牢度", parent: "色牢度", disabled: false },
+            { name: "干洗色牢度", parent: "色牢度", disabled: false },
+            { name: "水渍色牢度", parent: "色牢度", disabled: false },
+            { name: "汗渍色牢度", parent: "色牢度", disabled: false },
+            { name: "海水色牢度", parent: "色牢度", disabled: false },
+            { name: "摩擦色牢度(干湿摩)", parent: "色牢度", disabled: false },
+            { name: "氯漂色牢度", parent: "色牢度", disabled: false },
+          ],
+          checkAll2: false, // 初始化全选
+          checkedItems2: [], // 初始化选中的项
+          isIndeterminate2: false,
+          // 项目组3 外观稳定性
+          itemOptions3: [
+            { name: "缩率(1次水洗)", parent: "外观稳定性", disabled: false },
+            { name: "缩率(3次水洗)", parent: "外观稳定性", disabled: false },
+            { name: "干洗缩率", parent: "外观稳定性", disabled: false },
+            { name: "干洗后外观", parent: "外观稳定性", disabled: false },
+          ],
+          checkAll3: false, // 初始化全选
+          checkedItems3: [], // 初始化选中的项
+          isIndeterminate3: false,
+          // 项目组4 物理性能
+          itemOptions4: [
+            { name: "拉伸/断裂强度", parent: "物理性能", disabled: false },
+            { name: "撕裂强度", parent: "物理性能", disabled: false },
+            { name: "接缝滑移", parent: "物理性能", disabled: false },
+            { name: "接缝强度", parent: "物理性能", disabled: false },
+            { name: "顶破强度", parent: "物理性能", disabled: false },
+            { name: "防勾丝", parent: "物理性能", disabled: false },
+          ],
+          checkAll4: false, // 初始化全选
+          checkedItems4: [], // 初始化选中的项
+          isIndeterminate4: false,
+
+          specificationsData: [],
+          // 分类管理 抽屉界面
+          addClassification: false,
+          isEditing: false,
+          editIndex: -1,
+          classificationForm: {
+            label: "",
+            value: "",
+            disabled: false,
+          },
+          selectedItems: [], // 操作的分类选项
+
+          // 规格管理 抽屉界面
+          drawerVisible: false,
+          drawerTitle: "新增",
+          specificationForm: {
+            name: "",
+            parent: "",
+            disabled: false,
+          },
+          isEditing: false,
+          editIndex: -1,
+
+          images: [
+            "https://github.com/MKainooru/Images/raw/main/image1.jpg",
+            "https://github.com/MKainooru/Images/raw/main/image2.jpg",
+            "https://github.com/MKainooru/Images/raw/main/image3.png",
+            "https://github.com/MKainooru/Images/raw/main/image4.jpg",
+          ],
+        };
+      },
+      created() {
+        // 列表初始化数据
+        this.filteredData = this.tableData;
+        this.total = this.tableData.length;
+        this.updatePaginatedData();
+      },
+      computed: {
+        // 计算一页中的数据
+        paginatedData() {
+          const start = (this.currentPage - 1) * this.pageSize;
+          const end = start + this.pageSize;
+          return this.filteredData.slice(start, end);
+        },
+
+        // 合并数据组
+        mergedItems() {
+          return [
+            ...this.itemOptions1,
+            ...this.itemOptions2,
+            ...this.itemOptions3,
+            ...this.itemOptions4,
+          ];
+        },
+
+        currentTableData() {
+          const start = (this.currentPage - 1) * this.pageSize;
+          const end = this.currentPage * this.pageSize;
+          return this.mergedItems.slice(start, end);
+        },
+        total1() {
+          return this.mergedItems.length;
+        },
+
+        currentTableData2() {
+          const start = (this.currentPage - 1) * this.pageSize;
+          const end = this.currentPage * this.pageSize;
+          return this.classifyoptions.slice(start, end);
+        },
+        total2() {
+          return this.classifyoptions.length;
+        },
+      },
+      mounted() {
+        // 更新列表数据
+        this.filteredData = this.tableData;
+        this.total = this.filteredData.length;
+        this.updatePaginatedData();
+
+        // 初始化ECharts实例
+        var myChart = echarts.init(document.getElementById("bar1"));
+        // 指定图表的配置项和数据
+        var option1 = {
+          title: {
+            text: "订单统计",
+          },
+          tooltip: {},
+          legend: {
+            data: ["销量"],
+          },
+          xAxis: {
+            data: this.classifyoptions,
+          },
+          yAxis: {},
+          series: [
+            {
+              name: "销量",
+              type: "bar",
+              data: [5, 20, 36, 10, 10],
+            },
+          ],
+        };
+        // 使用刚指定的配置项和数据显示图表
+        myChart.setOption(option1);
+
+        // 生成图表数据
+        this.chartData = this.tableData.map((item) => ({
+          value: item.sales,
+          name: item.commodityname,
+        }));
+        // 初始化饼状图表
+        var newChart = echarts.init(document.getElementById("bar2"));
+        var option2 = {
+          legend: {
+            top: "bottom",
+          },
+
+          series: [
+            {
+              name: "Nightingale Chart",
+              type: "pie",
+              radius: [50, 250],
+              center: ["50%", "50%"],
+              roseType: "area",
+              itemStyle: {
+                borderRadius: 8,
+              },
+              data: this.chartData,
+            },
+          ],
+        };
+        newChart.setOption(option2);
+      },
+
+      methods: {
+        // 计算每页几条数据
+        handleSizeChange(val) {
+          this.pageSize = val;
+          this.currentPage = 1;
+          this.updatePaginatedData();
+        },
+        // 计算页码
+        handleCurrentChange(val) {
+          this.currentPage = val;
+          this.updatePaginatedData();
+        },
+        // 更新数据
+        updatePaginatedData() {
+          // const start = (this.currentPage - 1) * this.pageSize;
+          // const end = start + this.pageSize;
+          // this.paginatedData = this.filteredData.slice(start, end);
+        },
+
+        // 行删除事件
+        deleteRow(index, rows) {
+          rows.splice(index, 1);
+          this.total = this.filteredData.length; // 更新总条数
+          this.updatePaginatedData();
+        },
+
+        // 搜索商品
+        handleSearch() {
+          this.updatePaginatedData();
+        },
+
+        // 批量删除商品
+        handleBatchDelete() {
+          if (this.selectedItems.length === 0) {
+            this.$message.warning("请先选择要删除的商品");
+            return;
+          }
+          this.tableData = this.tableData.filter(
+            (item) => !this.selectedItems.includes(item)
+          );
+          this.filteredData = this.tableData; // 更新过滤后的数据
+          this.total = this.filteredData.length; // 更新总条数
+          this.selectedItems = []; // 清空已选项
+          this.currentPage = 1;
+          this.updatePaginatedData();
+        },
+
+        // 获取商品分类标签
+        getCategoryLabel(value) {
+          const option = this.classifyoptions.find(
+            (opt) => opt.value === value
+          );
+          return option ? option.label : "";
+        },
+
+        // 处理选中的商品变化
+        handleSelectionChangeShop(val) {
+          this.selectedItems = val;
+        },
+        // 处理选中的规格变化
+        handleSelectionChangeSpecifications(val) {
+          this.selectedItems = val;
+        },
+        // 处理选中的分类变化
+        handleSelectionChangeClassification(val) {
+          this.selectedItems = val;
+        },
+        // 上架商品
+        handleBatchShelfUp() {
+          if (this.selectedItems.length === 0) {
+            this.$message.warning("请先选择要上架的商品");
+            return;
+          }
+          this.selectedItems.forEach((item) => {
+            item.commoditystatus = "上架";
+          });
+          this.updatePaginatedData();
+          this.handleCancelSelection();
+        },
+        // 下架商品
+        handleBatchShelfDown() {
+          if (this.selectedItems.length === 0) {
+            this.$message.warning("请先选择要下架的商品");
+            return;
+          }
+          this.selectedItems.forEach((item) => {
+            item.commoditystatus = "仓库";
+          });
+          this.updatePaginatedData();
+          this.handleCancelSelection();
+        },
+        // 商品取消选择
+        handleCancelSelection() {
+          this.$refs.multipleTableShop.clearSelection();
+          this.selectedItems = [];
+        },
+        // 上传文件
+        handleAvatarChange(file, fileList) {
+          // 处理本地上传的图片文件
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.addform.imageUrlList.push(e.target.result);
+            this.fileList = fileList;
+          };
+          reader.readAsDataURL(file.raw);
+        },
+        handleRemove(file, fileList) {
+          // 移除被删除的图片路径
+          this.addform.imageUrlList = this.addform.imageUrlList.filter(
+            (url) => url !== file.url
+          );
+          this.fileList = fileList;
+        },
+        // 计数器加法器
+        handleChange(value) {
+          console.log(value);
+        },
+        // 数据提交功能
+        handleAdd() {
+          if (!this.addform.commodityname) {
+            this.$message.error("商品名称不能为空");
+            return;
+          } else if (this.addform.commoditystatus == null) {
+            this.$message.error("商品状态未选择");
+            return;
+          }
+          // 将新增商品推送到tableData
+          this.tableData.unshift({
+            commodityname: this.addform.commodityname,
+            sales: 0,
+            commoditystatus: this.addform.commoditystatus,
+            reviewstatus: "未审核", // 初始审核状态为未审核
+            totalinventory: this.addform.totalinventory,
+            salesprice: this.addform.salesprice,
+            originalprice: this.addform.originalprice,
+            creationTime: new Date().toISOString().split("T")[0],
+            dialogImageUrl: this.addform.dialogImageUrl,
+            classifyoptions: this.addform.classifyoptions,
+            isNew: true,
+          });
+          // 更新过滤后的数据
+          this.filteredData = this.tableData;
+          // 更新总条数
+          this.total = this.filteredData.length;
+          // 更新分页数据
+          this.updatePaginatedData();
+          // 重置表单
+          this.addform = {
+            commodityname: "",
+            commoditydesc: "",
+            totalinventory: 0,
+            warning: 0,
+            salesprice: 0,
+            originalprice: 0,
+            display: "2",
+            dialogImageUrl: "",
+            classifyoptions: [],
+            isNaw: false,
+          };
+          // 关闭抽屉
+          this.addition = false;
+        },
+        // 修改商品信息
+        editRow(index, row) {
+          // 将要修改的行数据填充到表单中
+          this.editform = Object.assign({}, row);
+          this.editIndex = index;
+          this.editition = true;
+        },
+        // 确认修改
+        handleEdit() {
+          // 将修改后的数据更新到原数据中
+          Object.assign(this.paginatedData[this.editIndex], this.editform);
+          this.filteredData = this.tableData;
+          this.updatePaginatedData();
+          this.editition = false;
+        },
+        updateFilteredData() {
+          // 先根据分类筛选
+          let filtered = this.tableData;
+          if (this.selectedCategories.length > 0) {
+            filtered = filtered.filter((item) =>
+              this.selectedCategories.includes(item.classifyoptions)
+            );
+          }
+          // 然后根据搜索文本进一步筛选
+          if (this.searchQuery) {
+            filtered = filtered.filter((item) =>
+              item.commodityname.includes(this.searchQuery)
+            );
+          }
+          this.filteredData = filtered;
+          this.total = this.filteredData.length;
+          this.updatePaginatedData();
+        },
+
+        // 重置分类和搜索框
+        handleReset() {
+          this.selectedCategories = [];
+          this.searchQuery = "";
+          // 显示所有数据
+          this.filteredData = this.tableData;
+          this.total = this.filteredData.length;
+          this.updatePaginatedData();
+        },
+
+        // 打开商品规格抽屉
+        openCommoditySpecifications(row) {
+          this.currentCommodity = row;
+          // 加载当前商品的规格数据
+          this.commoditySpecificationsForm.reportLanguage =
+            row.reportLanguage || "";
+          this.commoditySpecificationsForm.reportForm = row.reportForm || "";
+          this.commoditySpecificationsForm.laboratory = row.laboratory || "";
+          // 加载当前商品的复选框状态
+          this.checkedItems1 = row.checkedItems1 || [];
+          this.checkedItems2 = row.checkedItems2 || [];
+          this.checkedItems3 = row.checkedItems3 || [];
+          this.checkedItems4 = row.checkedItems4 || [];
+          this.checkAll1 =
+            this.checkedItems1.length === this.itemOptions1.length;
+          this.isIndeterminate1 =
+            this.checkedItems1.length > 0 &&
+            this.checkedItems1.length < this.itemOptions1.length;
+          this.checkAll2 =
+            this.checkedItems2.length === this.itemOptions2.length;
+          this.isIndeterminate2 =
+            this.checkedItems2.length > 0 &&
+            this.checkedItems2.length < this.itemOptions2.length;
+          this.checkAll3 =
+            this.checkedItems3.length === this.itemOptions3.length;
+          this.isIndeterminate3 =
+            this.checkedItems3.length > 0 &&
+            this.checkedItems3.length < this.itemOptions3.length;
+          this.checkAll4 =
+            this.checkedItems4.length === this.itemOptions4.length;
+          this.isIndeterminate4 =
+            this.checkedItems4.length > 0 &&
+            this.checkedItems4.length < this.itemOptions4.length;
+          this.commoditySpecifications = true;
+        },
+        // 提交商品规格
+        submitCommoditySpecifications() {
+          if (this.currentCommodity) {
+            // 保存表单数据到当前商品
+            this.currentCommodity.reportLanguage =
+              this.commoditySpecificationsForm.reportLanguage;
+            this.currentCommodity.reportForm =
+              this.commoditySpecificationsForm.reportForm;
+            this.currentCommodity.laboratory =
+              this.commoditySpecificationsForm.laboratory;
+            // 保存复选框状态到当前商品
+            this.currentCommodity.checkedItems1 = this.checkedItems1;
+            this.currentCommodity.checkedItems2 = this.checkedItems2;
+            this.currentCommodity.checkedItems3 = this.checkedItems3;
+            this.currentCommodity.checkedItems4 = this.checkedItems4;
+            // 关闭抽屉
+            this.commoditySpecifications = false;
+          }
+        },
+        // 商品状态点击方法
+        reviewItem(item, status) {
+          this.$set(item, "reviewstatus", status);
+          this.$set(item, "isNew", false);
+          this.updatePaginatedData();
+        },
+        // 项目组1 处理方法
+        handleCheckAllChange1(val) {
+          this.checkedItems1 = val ? this.itemOptions1 : [];
+          this.isIndeterminate1 = false;
+        },
+        handleCheckedItemsChange1(value) {
+          let checkedCount = value.length;
+          this.checkAll1 = checkedCount === this.itemOptions1.length;
+          this.isIndeterminate1 =
+            checkedCount > 0 && checkedCount < this.itemOptions1.length;
+        },
+        // 项目组2 处理方法
+        handleCheckAllChange2(val) {
+          this.checkedItems2 = val ? this.itemOptions2 : [];
+          this.isIndeterminate2 = false;
+        },
+        handleCheckedItemsChange2(value) {
+          let checkedCount = value.length;
+          this.checkAll2 = checkedCount === this.itemOptions2.length;
+          this.isIndeterminate2 =
+            checkedCount > 0 && checkedCount < this.itemOptions2.length;
+        },
+        // 项目组3 处理方法
+        handleCheckAllChange3(val) {
+          this.checkedItems3 = val ? this.itemOptions3 : [];
+          this.isIndeterminate3 = false;
+        },
+        handleCheckedItemsChange3(value) {
+          let checkedCount = value.length;
+          this.checkAll3 = checkedCount === this.itemOptions3.length;
+          this.isIndeterminate3 =
+            checkedCount > 0 && checkedCount < this.itemOptions3.length;
+        },
+        // 项目组4 处理方法
+        handleCheckAllChange4(val) {
+          this.checkedItems4 = val ? this.itemOptions4 : [];
+          this.isIndeterminate4 = false;
+        },
+        handleCheckedItemsChange4(value) {
+          let checkedCount = value.length;
+          this.checkAll4 = checkedCount === this.itemOptions4.length;
+          this.isIndeterminate4 =
+            checkedCount > 0 && checkedCount < this.itemOptions4.length;
+        },
+        // 分类管理新增
+        openAddDrawer() {
+          this.isEditing = false;
+          this.classificationForm = {
+            label: "",
+            value: "",
+            disabled: false,
+          };
+          this.addClassification = true;
+        },
+        // 分类管理的批量删除
+        batchDelete() {
+          this.selectedItems.forEach((item) => {
+            const index = this.classifyoptions.findIndex(
+              (option) => option.value === item.value
+            );
+            if (index !== -1) {
+              this.classifyoptions.splice(index, 1);
+            }
+          });
+          this.selectedItems = [];
+          this.currentPage = 1;
+        },
+        // 分类管理的删除
+        deleteClassification(index) {
+          this.classifyoptions.splice(index, 1);
+        },
+        // 分类管理的打开抽屉界面
+        openEditDrawer(index, row) {
+          this.isEditing = true;
+          this.editIndex = index;
+          this.classificationForm = { ...row };
+          this.addClassification = true;
+        },
+        // 分类管理的修改及新增
+        classificationAddOrEdit() {
+          if (!this.classificationForm.label) {
+            this.$message.error("分类名称不能为空");
+            return;
+          } else if (!this.classificationForm.value) {
+            this.$message.error("分类值不能为空");
+            return;
+          } else {
+            if (this.isEditing) {
+              this.classifyoptions.splice(this.editIndex, 1, {
+                label: this.classificationForm.label,
+                value: this.classificationForm.value,
+                disabled: this.classificationForm.disabled,
+              });
+            } else {
+              this.classifyoptions.unshift({
+                label: this.classificationForm.label,
+                value: this.classificationForm.value,
+                disabled: this.classificationForm.disabled,
+              });
+            }
+          }
+          this.addClassification = false;
+          this.classificationForm = {
+            label: "",
+            value: "",
+            disabled: false,
+          };
+        },
+        handleSwitchChange(index, value) {
+          this.classifyoptions[index].disabled = value;
+        },
+
+        // 规格管理 新增
+        openAddDrawer2() {
+          this.isEditing = false;
+          this.specificationForm = {
+            name: "",
+            parent: "",
+            disabled: false,
+          };
+          this.drawerTitle = "新增";
+          this.drawerVisible = true;
+        },
+        // 规格管理 修改
+        openEditDrawer2(index, row) {
+          this.isEditing = true;
+          this.editIndex = index;
+          this.specificationForm = { ...row };
+          this.drawerTitle = "修改";
+          this.drawerVisible = true;
+        },
+        // 提交规格（新增或修改）
+        submitSpecification() {
+          if (!this.specificationForm.name) {
+            this.$message.error("规格名称不能为空");
+            return;
+          } else if (!this.specificationForm.parent) {
+            this.$message.error("规格组名称不能为空");
+            return;
+          } else {
+            if (this.isEditing) {
+              this.updateSpecification();
+            } else {
+              this.addSpecification();
+            }
+          }
+          this.drawerVisible = false;
+          this.specificationForm = {
+            name: "",
+            parent: "",
+            disabled: false,
+          };
+        },
+        // 新增规格项
+        addSpecification() {
+          const targetArray = this.findOrCreateTargetArray(
+            this.specificationForm.parent
+          );
+          targetArray.unshift({ ...this.specificationForm });
+        },
+        // 修改规格项
+        updateSpecification() {
+          const oldItem = this.mergedItems[this.editIndex];
+          const oldArray = this.findTargetArray(oldItem);
+          const newArray = this.findOrCreateTargetArray(
+            this.specificationForm.parent
+          );
+
+          // 从旧数组中删除
+          const oldIndex = oldArray.findIndex(
+            (item) =>
+              item.name === oldItem.name && item.parent === oldItem.parent
+          );
+          if (oldIndex !== -1) {
+            oldArray.splice(oldIndex, 1);
+          }
+
+          // 添加到新数组
+          newArray.unshift({ ...this.specificationForm });
+        },
+        // 批量删除规格
+        batchDelete2() {
+          this.selectedItems.forEach((item) => {
+            const targetArray = this.findTargetArray(item);
+            const index = targetArray.findIndex(
+              (option) => option.name === item.name
+            );
+            if (index !== -1) {
+              targetArray.splice(index, 1);
+            }
+          });
+          this.selectedItems = [];
+          this.currentPage = 1;
+        },
+        // 规格管理 删除
+        deleteSpecification(index) {
+          const item = this.mergedItems[index];
+          const targetArray = this.findTargetArray(item);
+          const targetIndex = targetArray.findIndex(
+            (option) => option.name === item.name
+          );
+          if (targetIndex !== -1) {
+            targetArray.splice(targetIndex, 1);
+          }
+        },
+        // 切换规格状态
+        handleSwitchChange(index, value) {
+          const item = this.mergedItems[index];
+          const targetArray = this.findTargetArray(item);
+          const targetIndex = targetArray.findIndex(
+            (option) => option.name === item.name
+          );
+          if (targetIndex !== -1) {
+            targetArray[targetIndex].disabled = value;
+          }
+        },
+        // 查找或创建目标数组
+        findOrCreateTargetArray(parent) {
+          if (this.itemOptions1.some((option) => option.parent === parent)) {
+            return this.itemOptions1;
+          } else if (
+            this.itemOptions2.some((option) => option.parent === parent)
+          ) {
+            return this.itemOptions2;
+          } else if (
+            this.itemOptions3.some((option) => option.parent === parent)
+          ) {
+            return this.itemOptions3;
+          } else if (
+            this.itemOptions4.some((option) => option.parent === parent)
+          ) {
+            return this.itemOptions4;
+          } else {
+            const newArray = [];
+            this.$set(this, `itemOptions${this.newArrayIndex()}`, newArray);
+            return newArray;
+          }
+        },
+        // 查找目标数组
+        findTargetArray(item) {
+          if (this.itemOptions1.find((option) => option.name === item.name)) {
+            return this.itemOptions1;
+          } else if (
+            this.itemOptions2.find((option) => option.name === item.name)
+          ) {
+            return this.itemOptions2;
+          } else if (
+            this.itemOptions3.find((option) => option.name === item.name)
+          ) {
+            return this.itemOptions3;
+          } else {
+            return this.itemOptions4;
+          }
+        },
+        // 获取新的数组索引
+        newArrayIndex() {
+          let index = 1;
+          while (this[`itemOptions${index}`]) {
+            index++;
+          }
+          return index;
+        },
+        // 规格管理分类
+        filterTag(value, row) {
+          return row.parent === value;
+        },
+      },
+      watch: {
+        selectedCategories() {
+          this.updateFilteredData();
+        },
+        searchQuery() {
+          this.updateFilteredData();
+        },
+      },
+    });
+  </script>
+</html>
