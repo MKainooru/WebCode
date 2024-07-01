@@ -1,47 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="./css/Element-ui.css">
+    <link rel="stylesheet" href="./css/Element-ui.css" />
     <link rel="stylesheet" type="text/css" href="./css/index.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
     <script src="./js/vue.js" type="text/javascript" charset="utf-8"></script>
     <script src="./js/element-ui.js"></script>
     <script src="./js/axios.js"></script>
-</head>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  </head>
 
-<body>
+  <body>
     <div id="app">
-
+      <el-descriptions title="服务器 ID" :colon="false">
+        <el-descriptions-item>
+          org-kivii-k5-5f78ff85c9-52cx9
+        </el-descriptions-item>
+      </el-descriptions>
+      <el-descriptions title="Docker" :colon="false">
+        <el-descriptions-item label="Base Name">
+          kivii/k5-platform
+        </el-descriptions-item>
+        <el-descriptions-item label="Base Tag"> alpha </el-descriptions-item>
+        <el-descriptions-item label="Base Build At">
+          2024-06-29T18:01:35.0000000
+        </el-descriptions-item>
+        <el-descriptions-item label="Biz Name"> </el-descriptions-item>
+        <el-descriptions-item label="Biz Tag"> </el-descriptions-item>
+      </el-descriptions>
+      <el-table
+        ref="singleTable"
+        :data="tableData"
+        highlight-current-row
+        style="width: 100%"
+        height=""
+        border
+        @sort-change="changeSort"
+        :default-sort="{prop: 'date', order: 'ascending'}"
+      >
+        <el-table-column type="index" width="50"> </el-table-column>
+        <el-table-column
+          property=""
+          label="动态库名称"
+          sortable
+          :sort-orders="['ascending', 'descending']"
+        ></el-table-column>
+        <el-table-column
+          property=""
+          label="运行路径"
+          sortable
+          :sort-orders="['ascending', 'descending']"
+        ></el-table-column>
+        <el-table-column
+          property=""
+          label="描述"
+          sortable
+          :sort-orders="['ascending', 'descending']"
+        ></el-table-column>
+        <el-table-column
+          property=""
+          label="版本"
+          sortable
+          :sort-orders="['ascending', 'descending']"
+        ></el-table-column>
+      </el-table>
     </div>
-</body>
-<script type="text/javascript">
+  </body>
+  <script type="text/javascript">
     new Vue({
-        el: '#app',
-        data: function () {
-            return {
-
-
-            }
+      el: "#app",
+      data: function () {
+        return {};
+      },
+      created() {},
+      computed: {},
+      mounted() {},
+      methods: {
+        changeSort(val) {
+          console.log(val);
         },
-        created () {
-
-
-        },
-        computed: {
-
-        },
-        mounted () {
-
-        },
-        methods: {
-
-        }
-
-    })
-</script>
-
+      },
+    });
+  </script>
 </html>
