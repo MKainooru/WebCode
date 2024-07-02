@@ -20,24 +20,28 @@
   <body>
     <div id="app">
       <el-descriptions title="服务器 ID" :colon="false">
-        <el-descriptions-item>
-          org-kivii-k5-5f78ff85c9-52cx9
-        </el-descriptions-item>
+        <el-descriptions-item> {{ ServerId }} </el-descriptions-item>
       </el-descriptions>
       <el-descriptions title="Docker" :colon="false">
         <el-descriptions-item label="Base Name">
-          kivii/k5-platform
+          {{ Docker.BaseName }}
         </el-descriptions-item>
-        <el-descriptions-item label="Base Tag"> alpha </el-descriptions-item>
+        <el-descriptions-item label="Base Tag">
+          {{ Docker.BaseTag }}
+        </el-descriptions-item>
         <el-descriptions-item label="Base Build At">
-          2024-06-29T18:01:35.0000000
+          {{ Docker.BaseBuildAt }}
         </el-descriptions-item>
-        <el-descriptions-item label="Biz Name"> </el-descriptions-item>
-        <el-descriptions-item label="Biz Tag"> </el-descriptions-item>
+        <el-descriptions-item label="Biz Name">
+          {{ Docker.BizName }}</el-descriptions-item
+        >
+        <el-descriptions-item label="Biz Tag">
+          {{ Docker.BizTag }}</el-descriptions-item
+        >
       </el-descriptions>
       <el-table
         ref="singleTable"
-        :data="tableData"
+        :data="Assemblies"
         highlight-current-row
         style="width: 100%"
         height=""
@@ -47,25 +51,25 @@
       >
         <el-table-column type="index" width="50"> </el-table-column>
         <el-table-column
-          property=""
+          property="Name"
           label="动态库名称"
           sortable
           :sort-orders="['ascending', 'descending']"
         ></el-table-column>
         <el-table-column
-          property=""
+          property="CodeBase"
           label="运行路径"
           sortable
           :sort-orders="['ascending', 'descending']"
         ></el-table-column>
         <el-table-column
-          property=""
+          property="Description"
           label="描述"
           sortable
           :sort-orders="['ascending', 'descending']"
         ></el-table-column>
         <el-table-column
-          property=""
+          property="Version"
           label="版本"
           sortable
           :sort-orders="['ascending', 'descending']"
@@ -77,9 +81,37 @@
     new Vue({
       el: "#app",
       data: function () {
-        return {};
+        return {
+          ServerId: "",
+          Docker: {
+            BaseName: "",
+            BaseTag: "",
+            BaseBuildAt: "",
+            BizName: "",
+            BizTag: "",
+          },
+          Assemblies: [],
+        };
       },
-      created() {},
+      created() {
+        // 获取JSON数据并填充
+        axios
+          .get("https://k5.kivii.org/server/version.json", {
+            auth: {
+              username: "gj",
+              password: "Www.K1v11.Com",
+            },
+          })
+          .then((response) => {
+            console.log("JSON Data:", response.data);
+            this.serverId = response.data.serverId;
+            this.docker = response.data.docker;
+            this.libraries = response.data.libraries;
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
+      },
       computed: {},
       mounted() {},
       methods: {
