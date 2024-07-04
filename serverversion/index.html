@@ -17,20 +17,49 @@
     <script src="./js/axios.js"></script>
 
     <style>
+      html {
+        /* background-image: linear-gradient(#78809b, #d5dbe6); */
+        background-color: #8f939e;
+      }
+
       .el-card {
         display: inline-block;
-        width: 33%;
+        /* width: 33%; */
+        flex: 1;
         margin-bottom: 20px;
+      }
+      .el-icon-document {
+        font-size: 20px;
+        margin-right: 20px;
+      }
+
+      .name {
+        font-size: large;
+      }
+      .version {
+        font-size: small;
+        margin-left: 50px;
+      }
+
+      .el-table .cell {
+        padding-left: 0px;
+        padding-right: 0px;
+      }
+
+      .el-descriptions__body {
+        background-color: Transparent !important;
       }
     </style>
   </head>
 
   <body>
     <div id="app">
-      <div style="margin: 20px">
+      <div style="margin: 20px; display: flex">
         <el-card shadow="hover" style="height: 150px">
           <el-descriptions title="服务器 ID" :colon="false">
-            <el-descriptions-item>{{ ServerId }}</el-descriptions-item>
+            <el-descriptions-item class="item"
+              >{{ ServerId }}</el-descriptions-item
+            >
           </el-descriptions>
         </el-card>
         <el-card shadow="hover" style="height: 150px">
@@ -42,7 +71,7 @@
               >{{ Docker.BaseTag }}</el-descriptions-item
             >
             <el-descriptions-item label="打包时间"
-              >{{ Docker.BaseBuildAt }}</el-descriptions-item
+              >{{ formatDate(Docker.BaseBuildAt) }}</el-descriptions-item
             >
           </el-descriptions>
         </el-card>
@@ -56,20 +85,45 @@
       <el-divider></el-divider>
       <div style="margin-left: 20px; margin-right: 20px">
         <template>
-          <el-table :data="Assemblies" stripe border style="width: 100%">
-            <el-table-column type="index" width="180"> </el-table-column>
-            <el-table-column prop="address" align="right">
+          <el-table
+            :data="filteredAssemblies"
+            stripe
+            border
+            style="width: 100%"
+          >
+            <el-table-column type="index" width="50px"> </el-table-column>
+            <el-table-column>
               <template slot="header" slot-scope="scope">
                 <el-input
-                  style="width: 20%"
+                  style="width: 20%; float: right"
                   v-model="search"
                   placeholder="输入关键字搜索"
                 />
-                <div style="display: flex; width: 100%">
-                  <el-card shadow="hover" style="height: 60px; padding: 0px">
-                    <i class="el-icon-document"> </i>
-                  </el-card>
-                </div>
+              </template>
+
+              <template slot-scope="scope">
+                <el-card shadow="hover" style="width: 100%; padding: 0px">
+                  <div style="float: left">
+                    <i class="el-icon-document"></i>
+                  </div>
+                  <div style="margin-left: 50px; float: left">
+                    <span class="name">{{ scope.row.Name }} </span>
+                    <span class="version">{{ scope.row.Version }} </span>
+                    <br />
+                    <span class="codebase">{{ scope.row.CodeBase }} </span>
+                    <br />
+                    <span class="description"
+                      >{{ scope.row.Description }}
+                    </span>
+                  </div>
+                  <div style="float: right">
+                    <el-button
+                      type="text"
+                      icon="el-icon-more"
+                      style="font-size: 10px"
+                    ></el-button>
+                  </div>
+                </el-card>
               </template>
             </el-table-column>
           </el-table>
@@ -91,12 +145,23 @@
             BizTag: "",
           },
           Assemblies: [],
+          search: "",
         };
       },
       created() {
         // this.datePickerSubmit();
       },
-      computed: {},
+      computed: {
+        filteredAssemblies() {
+          return this.Assemblies.filter((item) => {
+            return Object.keys(item).some((key) =>
+              String(item[key])
+                .toLowerCase()
+                .includes(this.search.toLowerCase())
+            );
+          });
+        },
+      },
       mounted() {},
       methods: {
         datePickerSubmit() {
@@ -136,6 +201,12 @@
               return error.response.data.ResponseStatus.Message;
             });
           return result;
+        },
+        formatDate(value) {
+          if (value) {
+            return new Date(value).toLocaleString();
+          }
+          return "";
         },
       },
     });
