@@ -5,76 +5,76 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="./css/Element-ui.css" />
-    <link rel="stylesheet" type="text/css" href="./css/index.css" />
+    <!-- 引入样式 -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
     />
+    <link rel="stylesheet" type="text/css" href="./css/index.css" />
+    <!-- 引入组件库 -->
     <script src="./js/vue.js" type="text/javascript" charset="utf-8"></script>
-    <script src="./js/element-ui.js"></script>
-    <script src="./js/axios.js"></script>
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="./js/axios.js"></script>
+
+    <style>
+      .el-card {
+        display: inline-block;
+        width: 33%;
+        margin-bottom: 20px;
+      }
+    </style>
   </head>
 
   <body>
     <div id="app">
-      <el-descriptions title="服务器 ID" :colon="false">
-        <el-descriptions-item> {{ ServerId }} </el-descriptions-item>
-      </el-descriptions>
-      <el-descriptions title="Docker" :colon="false">
-        <el-descriptions-item label="Base Name">
-          {{ Docker.BaseName }}
-        </el-descriptions-item>
-        <el-descriptions-item label="Base Tag">
-          {{ Docker.BaseTag }}
-        </el-descriptions-item>
-        <el-descriptions-item label="Base Build At">
-          {{ Docker.BaseBuildAt }}
-        </el-descriptions-item>
-        <el-descriptions-item label="Biz Name">
-          {{ Docker.BizName }}</el-descriptions-item
-        >
-        <el-descriptions-item label="Biz Tag">
-          {{ Docker.BizTag }}</el-descriptions-item
-        >
-      </el-descriptions>
-      <el-table
-        ref="singleTable"
-        :data="Assemblies"
-        highlight-current-row
-        style="width: 100%"
-        height=""
-        border
-        @sort-change="changeSort"
-        :default-sort="{prop: 'date', order: 'ascending'}"
-      >
-        <el-table-column type="index" width="50"> </el-table-column>
-        <el-table-column
-          property="Name"
-          label="动态库名称"
-          sortable
-          :sort-orders="['ascending', 'descending']"
-        ></el-table-column>
-        <el-table-column
-          property="CodeBase"
-          label="运行路径"
-          sortable
-          :sort-orders="['ascending', 'descending']"
-        ></el-table-column>
-        <el-table-column
-          property="Description"
-          label="描述"
-          sortable
-          :sort-orders="['ascending', 'descending']"
-        ></el-table-column>
-        <el-table-column
-          property="Version"
-          label="版本"
-          sortable
-          :sort-orders="['ascending', 'descending']"
-        ></el-table-column>
-      </el-table>
+      <div style="margin: 20px">
+        <el-card shadow="hover" style="height: 150px">
+          <el-descriptions title="服务器 ID" :colon="false">
+            <el-descriptions-item>{{ ServerId }}</el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+        <el-card shadow="hover" style="height: 150px">
+          <el-descriptions title="基本信息">
+            <el-descriptions-item label="名称"
+              >{{ Docker.BaseName }}</el-descriptions-item
+            >
+            <el-descriptions-item label="标签" span="2"
+              >{{ Docker.BaseTag }}</el-descriptions-item
+            >
+            <el-descriptions-item label="打包时间"
+              >{{ Docker.BaseBuildAt }}</el-descriptions-item
+            >
+          </el-descriptions>
+        </el-card>
+        <el-card shadow="hover" style="height: 150px">
+          <el-descriptions title="业务信息">
+            <el-descriptions-item label="名称"></el-descriptions-item>
+            <el-descriptions-item label="标签"></el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+      </div>
+      <el-divider></el-divider>
+      <div style="margin-left: 20px; margin-right: 20px">
+        <template>
+          <el-table :data="Assemblies" stripe border style="width: 100%">
+            <el-table-column type="index" width="180"> </el-table-column>
+            <el-table-column prop="address" align="right">
+              <template slot="header" slot-scope="scope">
+                <el-input
+                  style="width: 20%"
+                  v-model="search"
+                  placeholder="输入关键字搜索"
+                />
+                <div style="display: flex; width: 100%">
+                  <el-card shadow="hover" style="height: 60px; padding: 0px">
+                    <i class="el-icon-document"> </i>
+                  </el-card>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </template>
+      </div>
     </div>
   </body>
   <script type="text/javascript">
@@ -94,29 +94,48 @@
         };
       },
       created() {
-        // 获取JSON数据并填充
-        axios
-          .get("https://k5.kivii.org/server/version.json", {
-            auth: {
-              username: "gj",
-              password: "Www.K1v11.Com",
-            },
-          })
-          .then((response) => {
-            console.log("JSON Data:", response.data);
-            this.serverId = response.data.serverId;
-            this.docker = response.data.docker;
-            this.libraries = response.data.libraries;
-          })
-          .catch((error) => {
-            console.error("Error fetching data:", error);
-          });
+        // this.datePickerSubmit();
       },
       computed: {},
       mounted() {},
       methods: {
-        changeSort(val) {
-          console.log(val);
+        datePickerSubmit() {
+          this.axiosRequst(
+            "https://k5.kivii.org/server/version.json?_dc=1719903650015",
+            {
+              auth: {
+                username: "gj",
+                password: "Www.K1v11.Com",
+              },
+            },
+            "get"
+          )
+            .then((res) => {
+              console.log("JSON Data:", res);
+              this.ServerId = res.ServerId;
+              this.Docker = res.Docker;
+              this.Assemblies = res.Assemblies;
+            })
+            .catch((error) => {
+              console.error("Error fetching data:", error);
+            });
+        },
+        axiosRequst(url, data, method) {
+          let result = axios({
+            method: method,
+            data: data,
+            url: url,
+            headers: {
+              "Content-Type": "application/json;charset=UTF-8",
+            },
+          })
+            .then((resp) => {
+              return resp.data;
+            })
+            .catch((error) => {
+              return error.response.data.ResponseStatus.Message;
+            });
+          return result;
         },
       },
     });
